@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Suscripciones</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 15px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            font-size: 1.5rem;
+        }
+        
+        .header-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 25px;
+            width: 100%;
+        }
+        
+        .search-box i {
+            margin-right: 10px;
+            color: #6c757d;
+        }
+        
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            font-size: 16px; /* Tamaño aumentado para móviles */
+        }
+        
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .filter-btn {
+            padding: 10px 15px;
+            background: #e9ecef;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            flex-grow: 1;
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .filter-btn.active {
+            background: #2c3e50;
+            color: white;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eaeaea;
+            font-size: 14px;
+        }
+        
+        th {
+            background-color: #2c3e50;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            position: sticky;
+            top: 0;
+        }
+        
+        .whatsapp-btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            min-width: 120px;
+            font-size: 14px;
+        }
+        
+        .whatsapp-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .whatsapp-btn.active {
+            background-color: #25D366; /* Verde WhatsApp para activo */
+        }
+
+        .whatsapp-btn.warning {
+            background-color: #FF9800; /* Naranja para pronto a vencer */
+        }
+
+        .whatsapp-btn.expired {
+            background-color: #F44336; /* Rojo para vencido */
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            font-style: italic;
+            color: #6c757d;
+            font-size: 16px;
+        }
+        
+        .status-badge {
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .status-active {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+        }
+        
+        .status-warning {
+            background-color: #FFF3E0;
+            color: #EF6C00;
+        }
+        
+        .status-expired {
+            background-color: #FFEBEE;
+            color: #C62828;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .table-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .pagination {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .pagination-btn {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            cursor: pointer;
+            min-width: 44px; /* Tamaño táctil mínimo */
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .pagination-btn.active {
+            background: #2c3e50;
+            color: white;
+            border-color: #2c3e50;
+        }
+        
+        /* Estilos para móviles */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+                border-radius: 8px;
+            }
+            
+            h1 {
+                font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+            
+            th, td {
+                padding: 10px 8px;
+                font-size: 13px;
+            }
+            
+            .whatsapp-btn {
+                padding: 10px 12px;
+                min-width: 100px;
+                font-size: 13px;
+            }
+            
+            /* Ocultar algunos elementos en tablas para móviles */
+            table th:nth-child(3),
+            table td:nth-child(3) {
+                display: none;
+            }
+            
+            /* Mejorar visualización de tabla en móviles */
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .filters {
+                overflow-x: auto;
+                padding-bottom: 5px;
+                justify-content: flex-start;
+            }
+            
+            .filter-btn {
+                flex-grow: 0;
+                white-space: nowrap;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.2rem;
+            }
+            
+            th, td {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+            
+            .whatsapp-btn {
+                min-width: 90px;
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+            
+            .status-badge {
+                min-width: 70px;
+                font-size: 11px;
+            }
+            
+            /* Ocultar más columnas en pantallas muy pequeñas */
+            table th:nth-child(1),
+            table td:nth-child(1) {
+                display: none;
+            }
+        }
+        
+        /* Mejoras de accesibilidad para dispositivos táctiles */
+        @media (hover: none) {
+            .whatsapp-btn:hover {
+                transform: none;
+            }
+            
+            tr:hover {
+                background-color: transparent;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestión de Suscripciones de Clientes</h1>
+        
+        <div class="header-info">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Buscar por email o teléfono...">
+            </div>
+            
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="active">Activos</button>
+                <button class="filter-btn" data-filter="warning">Por Vencer</button>
+                <button class="filter-btn" data-filter="expired">Vencidos</button>
+            </div>
+        </div>
+        
+        <div id="loading" class="loading">Cargando datos de clientes...</div>
+        
+        <table id="clientes-table" style="display: none;">
+            <thead>
+                <tr>
+                    <th data-sort="email">Email <i class="fas fa-sort"></i></th>
+                    <th data-sort="telefono">Teléfono <i class="fas fa-sort"></i></th>
+                    <th data-sort="suscripcion_valida_hasta">Suscripción Válida Hasta <i class="fas fa-sort"></i></th>
+                    <th data-sort="status">Estado <i class="fas fa-sort"></i></th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="clientes-body">
+                <!-- Los datos se insertarán aquí mediante JavaScript -->
+            </tbody>
+        </table>
+        
+        <div class="table-footer">
+            <div id="total-registros">Mostrando 0 registros</div>
+            <div class="pagination" id="pagination">
+                <button class="pagination-btn">&lt;</button>
+                <button class="pagination-btn active">1</button>
+                <button class="pagination-btn">&gt;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Incluir Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Inicializar Supabase
+        const supabaseUrl = 'https://kilcbwljxzaxtanxgqjv.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpbGNid2xqeHpheHRhbnhncWp2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODE5ODYxNCwiZXhwIjoyMDYzNzc0NjE0fQ.3OLX5rYrTpfGCf0PlQghFP7FvWucGex17zxxbiG4b_k';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Variables globales
+        let clientesData = [];
+        let currentFilter = 'all';
+        let currentSort = { field: 'email', direction: 'asc' };
+
+        // Función para formatear fechas
+        function formatDate(dateString) {
+            if (!dateString) return 'No especificada';
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('es-ES', options);
+        }
+
+        // Función para determinar el estado de suscripción
+        function getSubscriptionStatus(expirationDate) {
+            if (!expirationDate) return 'expired';
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const expiration = new Date(expirationDate);
+            expiration.setHours(0, 0, 0, 0);
+            
+            const threeDaysFromNow = new Date();
+            threeDaysFromNow.setDate(today.getDate() + 3);
+            threeDaysFromNow.setHours(0, 0, 0, 0);
+            
+            if (expiration < today) {
+                return 'expired';
+            } else if (expiration <= threeDaysFromNow) {
+                return 'warning';
+            } else {
+                return 'active';
+            }
+        }
+
+        // Función para obtener el texto del estado
+        function getStatusText(status) {
+            switch(status) {
+                case 'active': return 'Activa';
+                case 'warning': return 'Por vencer';
+                case 'expired': return 'Vencida';
+                default: return 'Desconocido';
+            }
+        }
+
+        // Función para obtener la clase CSS del estado
+        function getStatusClass(status) {
+            switch(status) {
+                case 'active': return 'status-active';
+                case 'warning': return 'status-warning';
+                case 'expired': return 'status-expired';
+                default: return '';
+            }
+        }
+        
+        // Función para generar el mensaje de advertencia (amarillo)
+        function getWarningMessage() {
+            return encodeURIComponent("📢 Aviso importante – Vencimiento de suscripción\n\nHola 👋, te recordamos que en 3 días vencerá tu suscripción a Linkify.\nPara seguir disfrutando de tu servicio sin interrupciones, te invitamos a renovarla siguiendo estos pasos:\n\n1️⃣ Iniciá sesión en tu perfil en [Linkify].\n2️⃣ Entrá en la sección Planes Pro.\n3️⃣ Elegí el plan con la cantidad de números que quieras.\n4️⃣ Realizá el pago de manera segura.\n\n✅ ¡Y listo! Tu suscripción quedará renovada automáticamente.\n\nTe recomendamos hacerlo cuanto antes para no perder acceso a tus enlaces y herramientas. 🚀");
+        }
+
+        // Función para generar el mensaje de vencido (rojo)
+        function getExpiredMessage() {
+            return encodeURIComponent("⚠️ Aviso importante – Suscripción vencida\n\nHola 👋, tu suscripción a Linkify ya ha vencido.\nTe damos un plazo de 5 días para renovarla, de lo contrario daremos de baja tu link.\n\n🔄 Para renovarla seguí estos pasos:\n\n1️⃣ Iniciá sesión en tu perfil en [Linkify].\n2️⃣ Entrá en la sección Planes Pro.\n3️⃣ Elegí el plan con la cantidad de números que quieras.\n4️⃣ Realizá el pago de manera segura.\n\n✅ Una vez hecho, tu suscripción quedará renovada y tu link seguirá activo sin interrupciones.");
+        }
+        
+        // Función para cargar los datos de los clientes
+        async function loadClientes() {
+            try {
+                // Obtener datos de la tabla de usuarios
+                const { data, error } = await supabase
+                    .from('usuarios')
+                    .select('*');
+                
+                if (error) {
+                    console.error('Error al cargar los datos:', error);
+                    document.getElementById('loading').textContent = 'Error al cargar los datos.';
+                    return;
+                }
+                
+                clientesData = data;
+                
+                // Ocultar mensaje de carga
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('clientes-table').style.display = 'table';
+                
+                // Renderizar datos
+                renderClientes();
+                
+            } catch (err) {
+                console.error('Error inesperado:', err);
+                document.getElementById('loading').textContent = 'Error inesperado al cargar los datos.';
+            }
+        }
+
+        // Función para renderizar clientes en la tabla
+        function renderClientes() {
+            // Aplicar filtro
+            let filteredData = clientesData;
+            if (currentFilter !== 'all') {
+                filteredData = clientesData.filter(cliente => {
+                    const status = getSubscriptionStatus(cliente.suscripcion_valida_hasta);
+                    return status === currentFilter;
+                });
+            }
+            
+            // Aplicar búsqueda
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            if (searchTerm) {
+                filteredData = filteredData.filter(cliente => 
+                    (cliente.email && cliente.email.toLowerCase().includes(searchTerm)) ||
+                    (cliente.telefono && cliente.telefono.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            // Aplicar ordenamiento
+            filteredData.sort((a, b) => {
+                let valueA, valueB;
+                
+                switch(currentSort.field) {
+                    case 'email':
+                        valueA = a.email || '';
+                        valueB = b.email || '';
+                        break;
+                    case 'telefono':
+                        valueA = a.telefono || '';
+                        valueB = b.telefono || '';
+                        break;
+                    case 'suscripcion_valida_hasta':
+                        valueA = a.suscripcion_valida_hasta ? new Date(a.suscripcion_valida_hasta) : new Date(0);
+                        valueB = b.suscripcion_valida_hasta ? new Date(b.suscripcion_valida_hasta) : new Date(0);
+                        break;
+                    case 'status':
+                        valueA = getSubscriptionStatus(a.suscripcion_valida_hasta);
+                        valueB = getSubscriptionStatus(b.suscripcion_valida_hasta);
+                        break;
+                    default:
+                        valueA = a.email || '';
+                        valueB = b.email || '';
+                }
+                
+                if (typeof valueA === 'string') {
+                    return currentSort.direction === 'asc' 
+                        ? valueA.localeCompare(valueB) 
+                        : valueB.localeCompare(valueA);
+                } else {
+                    return currentSort.direction === 'asc' 
+                        ? valueA - valueB 
+                        : valueB - valueA;
+                }
+            });
+            
+            // Insertar datos en la tabla
+            const clientesBody = document.getElementById('clientes-body');
+            clientesBody.innerHTML = '';
+            
+            if (filteredData.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="5" class="no-data">No se encontraron clientes</td>`;
+                clientesBody.appendChild(row);
+            } else {
+                filteredData.forEach(cliente => {
+                    const status = getSubscriptionStatus(cliente.suscripcion_valida_hasta);
+                    const statusText = getStatusText(status);
+                    const statusClass = getStatusClass(status);
+                    
+                    let whatsappUrl;
+                    if (status === 'warning') {
+                        whatsappUrl = `https://wa.me/${cliente.telefono}?text=${getWarningMessage()}`;
+                    } else if (status === 'expired') {
+                        whatsappUrl = `https://wa.me/${cliente.telefono}?text=${getExpiredMessage()}`;
+                    } else {
+                        whatsappUrl = `https://wa.me/${cliente.telefono}`;
+                    }
+
+                    // Crear la fila con el enlace correspondiente
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${cliente.email || 'No especificado'}</td>
+                        <td>${cliente.telefono || 'No especificado'}</td>
+                        <td>${formatDate(cliente.suscripcion_valida_hasta)}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <a href="${whatsappUrl}" target="_blank" class="whatsapp-btn ${status}">
+                                <i class="fab fa-whatsapp"></i> WhatsApp
+                            </a>
+                        </td>
+                    `;
+                    clientesBody.appendChild(row);
+                });
+            }
+            
+            // Actualizar contador
+            document.getElementById('total-registros').textContent = `Mostrando ${filteredData.length} registros`;
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Búsqueda
+            document.getElementById('search-input').addEventListener('input', renderClientes);
+            
+            // Filtros
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.filter;
+                    renderClientes();
+                });
+            });
+            
+            // Ordenamiento
+            document.querySelectorAll('th[data-sort]').forEach(th => {
+                th.addEventListener('click', function() {
+                    const field = this.dataset.sort;
+                    
+                    if (currentSort.field === field) {
+                        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentSort.field = field;
+                        currentSort.direction = 'asc';
+                    }
+                    
+                    // Actualizar iconos de ordenamiento
+                    document.querySelectorAll('th i').forEach(icon => {
+                        icon.className = 'fas fa-sort';
+                    });
+                    
+                    const icon = this.querySelector('i');
+                    icon.className = currentSort.direction === 'asc' 
+                        ? 'fas fa-sort-up' 
+                        : 'fas fa-sort-down';
+                    
+                    renderClientes();
+                });
+            });
+        }
+
+        // Cargar los datos cuando la página esté lista
+        document.addEventListener('DOMContentLoaded', function() {
+            loadClientes();
+            setupEventListeners();
+        });
+    </script>
+</body>
+</html>
