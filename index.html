@@ -428,13 +428,13 @@
         }
         
         // Función para generar el mensaje de advertencia (amarillo)
-        function getWarningMessage() {
-            return encodeURIComponent("📢 Aviso importante – Vencimiento de suscripción\n\nHola", {email}, "👋, te recordamos que en 3 días vencerá tu suscripción a Linkify.\nPara seguir disfrutando de tu servicio sin interrupciones, te invitamos a renovarla siguiendo estos pasos:\n\n1️⃣ Iniciá sesión en tu perfil en [Linkify].\n2️⃣ Entrá en la sección Planes Pro.\n3️⃣ Elegí el plan con la cantidad de números que quieras.\n4️⃣ Realizá el pago de manera segura.\n\n✅ ¡Y listo! Tu suscripción quedará renovada automáticamente.\n\nTe recomendamos hacerlo cuanto antes para no perder acceso a tus enlaces y herramientas. 🚀");
+        function getWarningMessage(email) {
+            return encodeURIComponent(`📢 Aviso importante – Vencimiento de suscripción\n\nHola ${email} 👋, te recordamos que en 3 días vencerá tu suscripción a Linkify.\nPara seguir disfrutando de tu servicio sin interrupciones, te invitamos a renovarla siguiendo estos pasos:\n\n1️⃣ Iniciá sesión en tu perfil en [Linkify].\n2️⃣ Entrá en la sección Planes Pro.\n3️⃣ Elegí el plan con la cantidad de números que quieras.\n4️⃣ Realizá el pago de manera segura.\n\n✅ ¡Y listo! Tu suscripción quedará renovada automáticamente.\n\nTe recomendamos hacerlo cuanto antes para no perder acceso a tus enlaces y herramientas. 🚀`);
         }
 
         // Función para generar el mensaje de vencido (rojo)
-        function getExpiredMessage() {
-            return encodeURIComponent("⚠️ Aviso importante – Suscripción vencida\n\nHola", {email},"👋, tu suscripción a Linkify ya ha vencido.\nTe damos un plazo de 5 días para renovarla, de lo contrario daremos de baja tu link.\n\n🔄 Para renovarla seguí estos pasos:\n\n1️⃣ Iniciá sesión en tu perfil en [Linkify].\n2️⃣ Entrá en la sección Planes Pro.\n3️⃣ Elegí el plan con la cantidad de números que quieras.\n4️⃣ Realizá el pago de manera segura.\n\n✅ Una vez hecho, tu suscripción quedará renovada y tu link seguirá activo sin interrupciones.");
+        function getExpiredMessage(email) {
+            return encodeURIComponent(`⚠️ Aviso importante – Suscripción vencida\n\nHola ${email} 👋, tu suscripción a Linkify ya ha vencido.\nTe damos un plazo de 5 días para renovarla, de lo contrario daremos de baja tu link.\n\n🔄 Para renovarla seguí estos pasos:\n\n1️⃣ Iniciá sesión en tu perfil en [Linkify].\n2️⃣ Entrá en la sección Planes Pro.\n3️⃣ Elegí el plan con la cantidad de números que quieras.\n4️⃣ Realizá el pago de manera segura.\n\n✅ Una vez hecho, tu suscripción quedará renovada y tu link seguirá activo sin interrupciones.`);
         }
         
         // Función para cargar los datos de los clientes
@@ -539,9 +539,9 @@
                     
                     let whatsappUrl;
                     if (status === 'warning') {
-                        whatsappUrl = `https://wa.me/${cliente.telefono}?text=${getWarningMessage()}`;
+                        whatsappUrl = `https://wa.me/${cliente.telefono}?text=${getWarningMessage(cliente.email)}`;
                     } else if (status === 'expired') {
-                        whatsappUrl = `https://wa.me/${cliente.telefono}?text=${getExpiredMessage()}`;
+                        whatsappUrl = `https://wa.me/${cliente.telefono}?text=${getExpiredMessage(cliente.email)}`;
                     } else {
                         whatsappUrl = `https://wa.me/${cliente.telefono}`;
                     }
