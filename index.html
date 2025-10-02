@@ -536,7 +536,7 @@
                     const status = getSubscriptionStatus(cliente.suscripcion_valida_hasta);
                     const statusText = getStatusText(status);
                     const statusClass = getStatusClass(status);
-                    
+
                     let whatsappUrl;
                     if (status === 'warning') {
                         whatsappUrl = `https://wa.me/${cliente.telefono}?text=${getWarningMessage(cliente.email)}`;
@@ -546,7 +546,7 @@
                         whatsappUrl = `https://wa.me/${cliente.telefono}`;
                     }
 
-                    // Crear la fila con el enlace correspondiente
+                    // Crear la fila con el enlace correspondiente y la casilla de verificación para usuarios vencidos
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${cliente.email || 'No especificado'}</td>
@@ -558,6 +558,7 @@
                                 <i class="fab fa-whatsapp"></i> WhatsApp
                             </a>
                         </td>
+                        ${status === 'expired' ? '<td><input type="checkbox" class="expired-checkbox"></td>' : ''}
                     `;
                     clientesBody.appendChild(row);
                 });
