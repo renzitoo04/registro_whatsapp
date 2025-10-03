@@ -529,7 +529,7 @@
             
             if (filteredData.length === 0) {
                 const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="5" class="no-data">No se encontraron clientes</td>`;
+                row.innerHTML = `<td colspan="6" class="no-data">No se encontraron clientes</td>`;
                 clientesBody.appendChild(row);
             } else {
                 filteredData.forEach(cliente => {
@@ -546,7 +546,7 @@
                         whatsappUrl = `https://wa.me/${cliente.telefono}`;
                     }
 
-                    // Crear la fila con el enlace correspondiente y la casilla de verificación para usuarios vencidos
+                    // Crear la fila con checkbox persistente en vencidos
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${cliente.email || 'No especificado'}</td>
@@ -558,10 +558,15 @@
                                 <i class="fab fa-whatsapp"></i> WhatsApp
                             </a>
                         </td>
-                        ${status === 'expired' ? '<td><input type="checkbox" class="expired-checkbox"></td>' : ''}
+                        ${status === 'expired' 
+                            ? `<td><input type="checkbox" class="expired-checkbox" data-email="${cliente.email}"></td>` 
+                            : ''}
                     `;
                     clientesBody.appendChild(row);
                 });
+
+                // Restaurar estado de los checkboxes después de renderizar
+                restoreCheckboxState();
             }
             
             // Actualizar contador
