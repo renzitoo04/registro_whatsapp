@@ -568,6 +568,37 @@
             document.getElementById('total-registros').textContent = `Mostrando ${filteredData.length} registros`;
         }
 
+        // Guardar el estado de las casillas de verificación en localStorage
+        function saveCheckboxState() {
+            const checkboxes = document.querySelectorAll('.expired-checkbox');
+            const checkboxStates = [];
+            checkboxes.forEach((checkbox, index) => {
+                checkboxStates[index] = checkbox.checked;
+            });
+            localStorage.setItem('checkboxStates', JSON.stringify(checkboxStates));
+        }
+
+        // Restaurar el estado de las casillas de verificación desde localStorage
+        function restoreCheckboxState() {
+            const checkboxStates = JSON.parse(localStorage.getItem('checkboxStates')) || [];
+            const checkboxes = document.querySelectorAll('.expired-checkbox');
+            checkboxes.forEach((checkbox, index) => {
+                checkbox.checked = checkboxStates[index] || false;
+            });
+        }
+
+        // Escuchar cambios en las casillas de verificación
+        document.addEventListener('change', (event) => {
+            if (event.target.classList.contains('expired-checkbox')) {
+                saveCheckboxState();
+            }
+        });
+
+        // Restaurar el estado de las casillas al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            restoreCheckboxState();
+        });
+
         // Configurar event listeners
         function setupEventListeners() {
             // Búsqueda
