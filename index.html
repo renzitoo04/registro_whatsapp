@@ -477,6 +477,9 @@
                 });
             }
             
+            // Filtrar usuarios con link generado
+            filteredData = filteredData.filter(cliente => cliente.link_generado);
+            
             // Aplicar búsqueda
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
             if (searchTerm) {
