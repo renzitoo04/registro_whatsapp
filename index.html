@@ -374,6 +374,7 @@
 
         // Variables globales
         let clientesData = [];
+        let linksData = [];
         let currentFilter = 'all';
         let currentSort = { field: 'email', direction: 'asc' };
 
@@ -466,20 +467,44 @@
             }
         }
 
+        // Función para cargar los datos de los links
+        async function loadLinks() {
+            try {
+                // Obtener datos de la tabla de links
+                const { data, error } = await supabase
+                    .from('link')
+                    .select('*');
+                
+                if (error) {
+                    console.error('Error al cargar los datos de links:', error);
+                    return;
+                }
+                
+                linksData = data;
+                
+                // Renderizar datos de clientes nuevamente para aplicar filtro de links
+                renderClientes();
+                
+            } catch (err) {
+                console.error('Error inesperado al cargar links:', err);
+            }
+        }
+
         // Función para renderizar clientes en la tabla
         function renderClientes() {
-            // Aplicar filtro
-            let filteredData = clientesData;
+            // Filtrar usuarios que tienen un link asociado
+            let filteredData = clientesData.filter(cliente => {
+                return linksData.some(link => link.email === cliente.email);
+            });
+
+            // Aplicar filtro adicional si no es 'all'
             if (currentFilter !== 'all') {
-                filteredData = clientesData.filter(cliente => {
+                filteredData = filteredData.filter(cliente => {
                     const status = getSubscriptionStatus(cliente.suscripcion_valida_hasta);
                     return status === currentFilter;
                 });
             }
-            
-            // Filtrar usuarios con link generado
-            filteredData = filteredData.filter(cliente => cliente.link_generado);
-            
+
             // Aplicar búsqueda
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
             if (searchTerm) {
@@ -488,11 +513,11 @@
                     (cliente.telefono && cliente.telefono.toLowerCase().includes(searchTerm))
                 );
             }
-            
+
             // Aplicar ordenamiento
             filteredData.sort((a, b) => {
                 let valueA, valueB;
-                
+
                 switch(currentSort.field) {
                     case 'email':
                         valueA = a.email || '';
@@ -514,7 +539,7 @@
                         valueA = a.email || '';
                         valueB = b.email || '';
                 }
-                
+
                 if (typeof valueA === 'string') {
                     return currentSort.direction === 'asc' 
                         ? valueA.localeCompare(valueB) 
@@ -525,11 +550,11 @@
                         : valueB - valueA;
                 }
             });
-            
+
             // Insertar datos en la tabla
             const clientesBody = document.getElementById('clientes-body');
             clientesBody.innerHTML = '';
-            
+
             if (filteredData.length === 0) {
                 const row = document.createElement('tr');
                 row.innerHTML = `<td colspan="6" class="no-data">No se encontraron clientes</td>`;
@@ -571,7 +596,7 @@
                 // Restaurar estado de los checkboxes después de renderizar
                 restoreCheckboxState();
             }
-            
+
             // Actualizar contador
             document.getElementById('total-registros').textContent = `Mostrando ${filteredData.length} registros`;
         }
@@ -652,6 +677,7 @@
         // Cargar los datos cuando la página esté lista
         document.addEventListener('DOMContentLoaded', function() {
             loadClientes();
+            loadLinks();
             setupEventListeners();
         });
     </script>
