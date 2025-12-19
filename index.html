@@ -445,22 +445,15 @@
                 const { data, error } = await supabase
                     .from('usuarios')
                     .select('*');
-                
+
                 if (error) {
                     console.error('Error al cargar los datos:', error);
                     document.getElementById('loading').textContent = 'Error al cargar los datos.';
                     return;
                 }
-                
+
                 clientesData = data;
-                
-                // Ocultar mensaje de carga
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('clientes-table').style.display = 'table';
-                
-                // Renderizar datos
-                renderClientes();
-                
+
             } catch (err) {
                 console.error('Error inesperado:', err);
                 document.getElementById('loading').textContent = 'Error inesperado al cargar los datos.';
@@ -474,19 +467,35 @@
                 const { data, error } = await supabase
                     .from('link')
                     .select('*');
-                
+
                 if (error) {
                     console.error('Error al cargar los datos de links:', error);
                     return;
                 }
-                
+
                 linksData = data;
-                
-                // Renderizar datos de clientes nuevamente para aplicar filtro de links
-                renderClientes();
-                
+
             } catch (err) {
                 console.error('Error inesperado al cargar links:', err);
+            }
+        }
+
+        // Función para cargar todos los datos
+        async function loadAllData() {
+            try {
+                // Cargar ambas tablas en paralelo
+                await Promise.all([loadClientes(), loadLinks()]);
+
+                // Ocultar mensaje de carga
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('clientes-table').style.display = 'table';
+
+                // Renderizar datos
+                renderClientes();
+
+            } catch (err) {
+                console.error('Error al cargar los datos:', err);
+                document.getElementById('loading').textContent = 'Error al cargar los datos.';
             }
         }
 
@@ -676,8 +685,7 @@
 
         // Cargar los datos cuando la página esté lista
         document.addEventListener('DOMContentLoaded', function() {
-            loadClientes();
-            loadLinks();
+            loadAllData();
             setupEventListeners();
         });
     </script>
