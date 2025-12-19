@@ -440,51 +440,45 @@
         
         // Función para cargar los datos de los clientes
         async function loadClientes() {
-            try {
-                // Obtener datos de la tabla de usuarios
-                const { data, error } = await supabase
-                    .from('usuarios')
-                    .select('*');
+            // Obtener datos de la tabla de usuarios
+            const { data, error } = await supabase
+                .from('usuarios')
+                .select('*');
 
-                if (error) {
-                    console.error('Error al cargar los datos:', error);
-                    document.getElementById('loading').textContent = 'Error al cargar los datos.';
-                    return;
-                }
-
-                clientesData = data;
-
-            } catch (err) {
-                console.error('Error inesperado:', err);
-                document.getElementById('loading').textContent = 'Error inesperado al cargar los datos.';
+            if (error) {
+                console.error('Error al cargar usuarios:', error);
+                throw new Error('Error al cargar usuarios: ' + error.message);
             }
+
+            clientesData = data;
+            console.log('Usuarios cargados:', data.length);
         }
 
         // Función para cargar los datos de los links
         async function loadLinks() {
-            try {
-                // Obtener datos de la tabla de links
-                const { data, error } = await supabase
-                    .from('link')
-                    .select('*');
+            // Obtener datos de la tabla de links
+            const { data, error } = await supabase
+                .from('link')
+                .select('*');
 
-                if (error) {
-                    console.error('Error al cargar los datos de links:', error);
-                    return;
-                }
-
-                linksData = data;
-
-            } catch (err) {
-                console.error('Error inesperado al cargar links:', err);
+            if (error) {
+                console.error('Error al cargar links:', error);
+                throw new Error('Error al cargar links: ' + error.message);
             }
+
+            linksData = data;
+            console.log('Links cargados:', data.length);
         }
 
         // Función para cargar todos los datos
         async function loadAllData() {
             try {
+                console.log('Iniciando carga de datos...');
+
                 // Cargar ambas tablas en paralelo
                 await Promise.all([loadClientes(), loadLinks()]);
+
+                console.log('Datos cargados exitosamente');
 
                 // Ocultar mensaje de carga
                 document.getElementById('loading').style.display = 'none';
@@ -495,7 +489,9 @@
 
             } catch (err) {
                 console.error('Error al cargar los datos:', err);
-                document.getElementById('loading').textContent = 'Error al cargar los datos.';
+                const loadingDiv = document.getElementById('loading');
+                loadingDiv.textContent = 'Error: ' + err.message;
+                loadingDiv.style.color = '#F44336';
             }
         }
 
