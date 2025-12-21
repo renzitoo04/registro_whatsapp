@@ -370,7 +370,7 @@
     <!-- Incluir Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // VERSION 3.0 - Diagnostic mode - 2025-12-21
+        // VERSION 3.1 - Debug mode with console logs - 2025-12-21
         const SUPABASE_URL = 'https://kilcbwljxzaxtanxgqjv.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpbGNid2xqeHpheHRhbnhncWp2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODE5ODYxNCwiZXhwIjoyMDYzNzc0NjE0fQ.3OLX5rYrTpfGCf0PlQghFP7FvWucGex17zxxbiG4b_k';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -711,9 +711,18 @@
 
         // Cargar los datos cuando la página esté lista
         document.addEventListener('DOMContentLoaded', function() {
-            loadAllData();
-            setupEventListeners();
+            console.log('DOM cargado, iniciando aplicación...');
+            try {
+                loadAllData();
+                setupEventListeners();
+            } catch (error) {
+                console.error('Error crítico al iniciar:', error);
+                alert('Error al iniciar la aplicación: ' + error.message);
+            }
         });
+
+        // Verificación de que el script se está cargando
+        console.log('Script cargado correctamente - VERSION 3.0');
     </script>
 </body>
 </html>
