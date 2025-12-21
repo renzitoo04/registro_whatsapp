@@ -337,7 +337,10 @@
             </div>
         </div>
         
-        <div id="loading" class="loading">Cargando datos de clientes...</div>
+        <div id="loading" class="loading">
+            <div>Iniciando conexión...</div>
+            <div id="loading-details" style="font-size: 12px; margin-top: 10px; color: #666;"></div>
+        </div>
         
         <table id="clientes-table" style="display: none;">
             <thead>
@@ -367,7 +370,7 @@
     <!-- Incluir Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Inicializar Supabase
+        // VERSION 3.0 - Diagnostic mode - 2025-12-21
         const SUPABASE_URL = 'https://kilcbwljxzaxtanxgqjv.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpbGNid2xqeHpheHRhbnhncWp2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODE5ODYxNCwiZXhwIjoyMDYzNzc0NjE0fQ.3OLX5rYrTpfGCf0PlQghFP7FvWucGex17zxxbiG4b_k';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -438,60 +441,87 @@
             return encodeURIComponent(`⚠️ Aviso importante – Suscripción vencida\n\nHola ${email} 👋, tu suscripción a Linkify ya ha vencido.\nTe damos un plazo de 5 días para renovarla, de lo contrario daremos de baja tu link.\n\n🔄 Para renovarla seguí estos pasos:\n\n1️⃣ Iniciá sesión en tu perfil en [Linkify.com.ar].\n2️⃣ Entrá en la sección Planes Pro.\n3️⃣ Elegí el plan con la cantidad de números que quieras.\n4️⃣ Realizá el pago de manera segura.\n\n✅ Una vez hecho, tu suscripción quedará renovada y tu link seguirá activo sin interrupciones.`);
         }
         
+        // Función para actualizar el estado de carga
+        function updateLoadingStatus(message, isError = false) {
+            const loadingDiv = document.getElementById('loading');
+            const detailsDiv = document.getElementById('loading-details');
+
+            if (isError) {
+                loadingDiv.style.color = '#F44336';
+                loadingDiv.querySelector('div').textContent = '❌ Error al cargar';
+                detailsDiv.innerHTML = message;
+            } else {
+                detailsDiv.innerHTML += '<br>' + message;
+            }
+            console.log(message);
+        }
+
         // Función para cargar los datos de los clientes
         async function loadClientes() {
-            // Obtener datos de la tabla de usuarios
+            updateLoadingStatus('📊 Conectando a tabla usuarios...');
+
             const { data, error } = await supabase
                 .from('usuarios')
                 .select('*');
 
             if (error) {
                 console.error('Error al cargar usuarios:', error);
-                throw new Error('Error al cargar usuarios: ' + error.message);
+                throw new Error('No se pudo cargar la tabla usuarios: ' + error.message);
             }
 
-            clientesData = data;
-            console.log('Usuarios cargados:', data.length);
+            clientesData = data || [];
+            updateLoadingStatus(`✅ ${clientesData.length} usuarios cargados`);
         }
 
         // Función para cargar los datos de los links
         async function loadLinks() {
-            // Obtener datos de la tabla de links
+            updateLoadingStatus('📊 Conectando a tabla link...');
+
             const { data, error } = await supabase
                 .from('link')
                 .select('*');
 
             if (error) {
                 console.error('Error al cargar links:', error);
-                throw new Error('Error al cargar links: ' + error.message);
+                throw new Error('No se pudo cargar la tabla link: ' + error.message);
             }
 
-            linksData = data;
-            console.log('Links cargados:', data.length);
+            linksData = data || [];
+            updateLoadingStatus(`✅ ${linksData.length} links cargados`);
         }
 
         // Función para cargar todos los datos
         async function loadAllData() {
             try {
-                console.log('Iniciando carga de datos...');
+                updateLoadingStatus('🔌 Verificando conexión a Supabase...');
+
+                // Verificar que supabase esté inicializado
+                if (!supabase) {
+                    throw new Error('Supabase no está inicializado correctamente');
+                }
+
+                updateLoadingStatus('✅ Conexión establecida');
 
                 // Cargar ambas tablas en paralelo
                 await Promise.all([loadClientes(), loadLinks()]);
 
-                console.log('Datos cargados exitosamente');
+                updateLoadingStatus('🎉 Datos cargados exitosamente. Renderizando...');
 
                 // Ocultar mensaje de carga
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('clientes-table').style.display = 'table';
-
-                // Renderizar datos
-                renderClientes();
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('clientes-table').style.display = 'table';
+                    renderClientes();
+                }, 500);
 
             } catch (err) {
-                console.error('Error al cargar los datos:', err);
-                const loadingDiv = document.getElementById('loading');
-                loadingDiv.textContent = 'Error: ' + err.message;
-                loadingDiv.style.color = '#F44336';
+                console.error('Error completo:', err);
+                updateLoadingStatus(
+                    `<strong>Detalles del error:</strong><br>` +
+                    `${err.message}<br><br>` +
+                    `<small>Revisa la consola (F12) para más información.</small>`,
+                    true
+                );
             }
         }
 
