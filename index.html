@@ -370,10 +370,12 @@
     <!-- Incluir Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // VERSION 3.1 - Debug mode with console logs - 2025-12-21
-        const SUPABASE_URL = 'https://kilcbwljxzaxtanxgqjv.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpbGNid2xqeHpheHRhbnhncWp2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODE5ODYxNCwiZXhwIjoyMDYzNzc0NjE0fQ.3OLX5rYrTpfGCf0PlQghFP7FvWucGex17zxxbiG4b_k';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // APP VERSION 4.0 - CACHE BUSTER - 2025-12-21T15:30:00
+        // Inicializar cliente de base de datos
+        var dbClient = window.supabase.createClient(
+            'https://kilcbwljxzaxtanxgqjv.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpbGNid2xqeHpheHRhbnhncWp2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODE5ODYxNCwiZXhwIjoyMDYzNzc0NjE0fQ.3OLX5rYrTpfGCf0PlQghFP7FvWucGex17zxxbiG4b_k'
+        );
 
         // Variables globales
         let clientesData = [];
@@ -460,7 +462,7 @@
         async function loadClientes() {
             updateLoadingStatus('📊 Conectando a tabla usuarios...');
 
-            const { data, error } = await supabase
+            const { data, error } = await dbClient
                 .from('usuarios')
                 .select('*');
 
@@ -477,7 +479,7 @@
         async function loadLinks() {
             updateLoadingStatus('📊 Conectando a tabla link...');
 
-            const { data, error } = await supabase
+            const { data, error } = await dbClient
                 .from('link')
                 .select('*');
 
@@ -495,9 +497,9 @@
             try {
                 updateLoadingStatus('🔌 Verificando conexión a Supabase...');
 
-                // Verificar que supabase esté inicializado
-                if (!supabase) {
-                    throw new Error('Supabase no está inicializado correctamente');
+                // Verificar que el cliente esté inicializado
+                if (!dbClient) {
+                    throw new Error('Cliente de base de datos no inicializado');
                 }
 
                 updateLoadingStatus('✅ Conexión establecida');
@@ -722,7 +724,8 @@
         });
 
         // Verificación de que el script se está cargando
-        console.log('Script cargado correctamente - VERSION 3.0');
+        console.log('✅ Script cargado correctamente - VERSION 4.0');
+        console.log('✅ Cliente de base de datos inicializado:', !!dbClient);
     </script>
 </body>
 </html>
